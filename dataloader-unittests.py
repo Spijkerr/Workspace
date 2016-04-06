@@ -9,9 +9,6 @@ Created on Mon Apr  4 10:25:52 2016
 
 import DataLoader3 as DL
 import unittest
-import os
-import sys
-
 from pandas import DataFrame
 from pandas.util.testing import assert_frame_equal
 #
@@ -19,9 +16,7 @@ from pandas.util.testing import assert_frame_equal
 #    raise Exception ('Python is run from the wrong location')
 
 def locator(filename):
-    script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
-    rel_path = "Python/Testcases/" + filename
-    abs_file_path = os.path.join(script_dir, rel_path)
+    abs_file_path = "J:/Applications/BB-Python/Python/Testcases/" + filename
     return abs_file_path
 
 
@@ -287,12 +282,17 @@ class DataFrameTestCase(unittest.TestCase):
         df.index.rename('Header1', inplace = True)
             
         assert_frame_equal(result.iloc[[1]], df.iloc[[1]])          
+        
       
-
-
-#testchange
-
-
+    def test_dataframeloader9(self):
+        #Test 5: Check whether changing the index changes the usage of slicing 
+        result = self.dataframeloader.load_data(data_location = locator('datalistloader1.xlsx'), col_is_index = 'Header1')
+        Header1 = ['Regel1', '"3454235' ]        
+        t = [['Regel2', 'Regel3'], ['&85674#', "'sadaf'"]]
+        df = DataFrame(t, columns = ['Header2', 'Header3'], index = Header1)    
+        df.index.rename('Header1', inplace = True)
+            
+        assert_frame_equal(result.iloc[[1]], df.iloc[[1]])     
 
     
     
