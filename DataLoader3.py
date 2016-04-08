@@ -59,6 +59,10 @@ class DataCutter():
         
         total_vals = [row_count[row] for row in row_count]
         total_vals = sum(total_vals)
+        """
+        Wouldn't this work as total_vals = sum([row_count[row] for row in row_count])?
+        """
+        
         average_row = total_vals/len(row_count)
 
         rows_to_delete = [row for row in row_count if row_count[row] < (average_row * self.row_limit)]

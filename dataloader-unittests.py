@@ -155,15 +155,16 @@ class DataListLoaderTestCases(unittest.TestCase):
 #        result = self.dataloader.find_extension_and_load(locator('datalistloader1.xlsx'))
 #        
 #        self.assertEqual(result[9], [147512.25, 147512.25, 147512.25])           
-        
-        
-        
-          
+                
     
 class DataCutterTestCases(unittest.TestCase):
     datacutter = DL.DataCutter(protect_cols = None, protect_rows = None, col_limit = 0.05, row_limit = 0.50)
+    """
+    Input check to see whether kwargs datacutter = kwargs DL.Datacutter
+    """
     
     def test_datacutter1(self):
+        #Test 1: Check whether the datacutter cuts rows properly
         dataset = [['Header1', 'Header2'], 
                    ['',''],
                    ['Data1', 'Data2']]
@@ -172,14 +173,251 @@ class DataCutterTestCases(unittest.TestCase):
         self.assertEqual(cut_data,[['Header1', 'Header2'], ['Data1', 'Data2']] )
         
     def test_datacutter2(self): 
+        #Test 2: Check whether the datacutter cuts columns properly
         dataset = [['Header1', '', 'Header2'], 
                    ['', '',''],
-                   ['Data1', '', 'Data2'], 
+                   ['Regel1', '',  'Regel2'], 
                    ['', '','']]
         
         cut_data = self.datacutter.cut_redundant_data(dataset)
         
-        self.assertEqual(cut_data,[['Header1', 'Header2'], ['Data1', 'Data2']] )
+        self.assertEqual(cut_data,[['Header1', 'Header2'], ['Regel1', 'Regel2']] )
+        
+    def test_datacutter3(self): 
+        #Test 3: Check whether the protected rows are not cut
+        datacutter = DL.DataCutter(protect_cols = 'test' , protect_rows = None)
+        dataset = [['Header1', 'Header2', 'Header3'], 
+                   ['', '',''],
+                   ['Regel1', '', 'Regel2'], 
+                   ['', '','']]
+        
+        cut_data = datacutter.cut_redundant_data(dataset)
+        
+        self.assertEqual(cut_data,[['Header1', 'Header2', 'Header3'], ['Regel1', '', 'Regel2']])      
+             
+        
+#    def test_datacutter4(self): 
+#        """
+#        function incorrect. How to call the proper row to be protected?
+#        """
+#        #Test 4: Check whether the protected columns not cut
+#        datacutter = DL.DataCutter(protect_cols = None , protect_rows = 'test', col_limit = 0.05, row_limit = 0.50)
+#        dataset = [['Header1', '', 'Header2'], 
+#                   ['', '',''],
+#                   ['Regel1', '', 'Regel2'], 
+#                   ['test', '','']]
+#        
+#        cut_data = datacutter.cut_redundant_data(dataset)
+#        
+#        self.assertEqual(cut_data,[['Header1', 'Header2'], ['Regel1', 'Regel2'], ['test', '', '']] )    
+        
+    def test_datacutter5(self): 
+        #Test 5: Check whether no restrions on rows or colums returns the whole dataset
+        datacutter = DL.DataCutter(col_limit = 0.40, row_limit = 0)
+        dataset = [['Header1', 'Header2', 'Header3', 'Header4', 'Header5',''], 
+                   ['Regel1', 'Regel5', 'Regel8', 'Regel10', '', ''],
+                   ['Regel2', 'Regel6', 'Regel9', '', '', ''], 
+                   ['Regel3', 'Regel7', '', '', '', ''],
+                   ['Regel4', '', '', '', '', ''],
+                   ['', '', '' ,'' ,'' ,'']]
+        
+        cut_data = datacutter.cut_redundant_data(dataset)
+        
+        self.assertEqual(cut_data, [['Header1', 'Header2', 'Header3', 'Header4', 'Header5'], 
+                                    ['Regel1', 'Regel5', 'Regel8', 'Regel10', ''],
+                                    ['Regel2', 'Regel6', 'Regel9', '', ''], 
+                                    ['Regel3', 'Regel7', '', '', ''],
+                                    ['Regel4', '', '', '', ''],
+                                    ['', '', '', '', '']])
+                                    
+    def test_datacutter6(self): 
+        #Test 6: Check whether column limits work correctly
+        datacutter = DL.DataCutter(col_limit = 0.41, row_limit = 0)
+        dataset = [['Header1', 'Header2', 'Header3', 'Header4', 'Header5',''], 
+                   ['Regel1', 'Regel5', 'Regel8', 'Regel10', '', ''],
+                   ['Regel2', 'Regel6', 'Regel9', '', '', ''], 
+                   ['Regel3', 'Regel7', '', '', '', ''],
+                   ['Regel4', '', '', '', '', ''],
+                   ['', '', '' ,'' ,'' ,'']]
+        
+        cut_data = datacutter.cut_redundant_data(dataset)
+        
+        self.assertEqual(cut_data, [['Header1', 'Header2', 'Header3', 'Header4'], 
+                                    ['Regel1', 'Regel5', 'Regel8', 'Regel10'],
+                                    ['Regel2', 'Regel6', 'Regel9', ''], 
+                                    ['Regel3', 'Regel7', '', ''],
+                                    ['Regel4', '', '', ''],
+                                    ['', '', '', '']])                                 
+                                   
+    def test_datacutter7(self): 
+        #Test 7: Check whether column limits work correctly
+        datacutter = DL.DataCutter(col_limit = 0.81, row_limit = 0)
+        dataset = [['Header1', 'Header2', 'Header3', 'Header4', 'Header5',''], 
+                   ['Regel1', 'Regel5', 'Regel8', 'Regel10', '', ''],
+                   ['Regel2', 'Regel6', 'Regel9', '', '', ''], 
+                   ['Regel3', 'Regel7', '', '', '', ''],
+                   ['Regel4', '', '', '', '', ''],
+                   ['', '', '' ,'' ,'' ,'']]
+        
+        cut_data = datacutter.cut_redundant_data(dataset)
+        
+        self.assertEqual(cut_data, [['Header1', 'Header2', 'Header3'], 
+                                    ['Regel1', 'Regel5', 'Regel8'],
+                                    ['Regel2', 'Regel6', 'Regel9'], 
+                                    ['Regel3', 'Regel7', ''],
+                                    ['Regel4', '', ''],
+                                    ['', '', '']])  
+                                   
+    def test_datacutter8(self): 
+        #Test 8 : Check whether column limits work correctly
+        datacutter = DL.DataCutter(col_limit = 1.21, row_limit = 0)
+        dataset = [['Header1', 'Header2', 'Header3', 'Header4', 'Header5',''], 
+                   ['Regel1', 'Regel5', 'Regel8', 'Regel10', '', ''],
+                   ['Regel2', 'Regel6', 'Regel9', '', '', ''], 
+                   ['Regel3', 'Regel7', '', '', '', ''],
+                   ['Regel4', '', '', '', '', ''],
+                   ['', '', '' ,'' ,'' ,'']]
+        
+        cut_data = datacutter.cut_redundant_data(dataset)
+        
+        self.assertEqual(cut_data, [['Header1', 'Header2'], 
+                                    ['Regel1', 'Regel5'],
+                                    ['Regel2', 'Regel6'], 
+                                    ['Regel3', 'Regel7'],
+                                    ['Regel4', ''],
+                                    ['', '']])   
+
+    def test_datacutter9(self): 
+        #Test 9: Check whether column limits work correctly
+        datacutter = DL.DataCutter(col_limit = 1.61, row_limit = 0)
+        dataset = [['Header1', 'Header2', 'Header3', 'Header4', 'Header5',''], 
+                   ['Regel1', 'Regel5', 'Regel8', 'Regel10', '', ''],
+                   ['Regel2', 'Regel6', 'Regel9', '', '', ''], 
+                   ['Regel3', 'Regel7', '', '', '', ''],
+                   ['Regel4', '', '', '', '', ''],
+                   ['', '', '' ,'' ,'' ,'']]
+        
+        cut_data = datacutter.cut_redundant_data(dataset)
+        
+        self.assertEqual(cut_data, [['Header1'], 
+                                    ['Regel1'],
+                                    ['Regel2'], 
+                                    ['Regel3'],
+                                    ['Regel4'],
+                                    ['']])  
+                                    
+    def test_datacutter10(self): 
+        #Test 10: Check whether column limits work correctly
+        datacutter = DL.DataCutter(col_limit = 2.01, row_limit = 0)
+        dataset = [['Header1', 'Header2', 'Header3', 'Header4', 'Header5',''], 
+                   ['Regel1', 'Regel5', 'Regel8', 'Regel10', '', ''],
+                   ['Regel2', 'Regel6', 'Regel9', '', '', ''], 
+                   ['Regel3', 'Regel7', '', '', '', ''],
+                   ['Regel4', '', '', '', '', ''],
+                   ['', '', '' ,'' ,'' ,'']]
+        
+        cut_data = datacutter.cut_redundant_data(dataset)
+        
+        self.assertEqual(cut_data, [[], [], [], [], [], []])   
+
+    def test_datacutter11(self): 
+        #Test 11: Check whether row limits work correctly
+        datacutter = DL.DataCutter(col_limit = 0, row_limit = 0.40)
+        dataset = [['Header1', 'Header2', 'Header3', 'Header4', 'Header5',''], 
+                   ['Regel1', 'Regel5', 'Regel8', 'Regel10', '', ''],
+                   ['Regel2', 'Regel6', 'Regel9', '', '', ''], 
+                   ['Regel3', 'Regel7', '', '', '', ''],
+                   ['Regel4', '', '', '', '', ''],
+                   ['', '', '' ,'' ,'' ,'']]
+        
+        cut_data = datacutter.cut_redundant_data(dataset)
+        
+        self.assertEqual(cut_data, [['Header1', 'Header2', 'Header3', 'Header4', 'Header5', ''], 
+                                    ['Regel1', 'Regel5', 'Regel8', 'Regel10', '', ''],
+                                    ['Regel2', 'Regel6', 'Regel9', '', '', ''], 
+                                    ['Regel3', 'Regel7', '', '', '', ''],
+                                    ['Regel4', '', '', '', '', '']])                                    
+                                   
+    def test_datacutter12(self): 
+        #Test 12: Check whether row limits work correctly
+        datacutter = DL.DataCutter(col_limit = 0, row_limit = 0.41)
+        dataset = [['Header1', 'Header2', 'Header3', 'Header4', 'Header5',''], 
+                   ['Regel1', 'Regel5', 'Regel8', 'Regel10', '', ''],
+                   ['Regel2', 'Regel6', 'Regel9', '', '', ''], 
+                   ['Regel3', 'Regel7', '', '', '', ''],
+                   ['Regel4', '', '', '', '', ''],
+                   ['', '', '' ,'' ,'' ,'']]
+        
+        cut_data = datacutter.cut_redundant_data(dataset)
+        
+        self.assertEqual(cut_data, [['Header1', 'Header2', 'Header3', 'Header4', 'Header5', ''], 
+                                    ['Regel1', 'Regel5', 'Regel8', 'Regel10', '', ''],
+                                    ['Regel2', 'Regel6', 'Regel9', '', '', ''], 
+                                    ['Regel3', 'Regel7', '', '', '', '']])                                   
+                                   
+    def test_datacutter13(self): 
+        #Test 13: Check whether row limits work correctly
+        datacutter = DL.DataCutter(col_limit = 0, row_limit = 0.81)
+        dataset = [['Header1', 'Header2', 'Header3', 'Header4', 'Header5',''], 
+                   ['Regel1', 'Regel5', 'Regel8', 'Regel10', '', ''],
+                   ['Regel2', 'Regel6', 'Regel9', '', '', ''], 
+                   ['Regel3', 'Regel7', '', '', '', ''],
+                   ['Regel4', '', '', '', '', ''],
+                   ['', '', '' ,'' ,'' ,'']]
+        
+        cut_data = datacutter.cut_redundant_data(dataset)
+        
+        self.assertEqual(cut_data, [['Header1', 'Header2', 'Header3', 'Header4', 'Header5', ''], 
+                                    ['Regel1', 'Regel5', 'Regel8', 'Regel10', '', ''],
+                                    ['Regel2', 'Regel6', 'Regel9', '', '', '']])                                      
+                                   
+    def test_datacutter14(self): 
+        #Test 14: Check whether row limits work correctly
+        datacutter = DL.DataCutter(col_limit = 0, row_limit = 1.21)
+        dataset = [['Header1', 'Header2', 'Header3', 'Header4', 'Header5',''], 
+                   ['Regel1', 'Regel5', 'Regel8', 'Regel10', '', ''],
+                   ['Regel2', 'Regel6', 'Regel9', '', '', ''], 
+                   ['Regel3', 'Regel7', '', '', '', ''],
+                   ['Regel4', '', '', '', '', ''],
+                   ['', '', '' ,'' ,'' ,'']]
+        
+        cut_data = datacutter.cut_redundant_data(dataset)
+        
+        self.assertEqual(cut_data, [['Header1', 'Header2', 'Header3', 'Header4', 'Header5', ''], 
+                                    ['Regel1', 'Regel5', 'Regel8', 'Regel10', '', '']])                                     
+                                   
+    def test_datacutter15(self): 
+        #Test 15: Check whether row limits work correctly
+        datacutter = DL.DataCutter(col_limit = 0, row_limit = 1.61)
+        dataset = [['Header1', 'Header2', 'Header3', 'Header4', 'Header5',''], 
+                   ['Regel1', 'Regel5', 'Regel8', 'Regel10', '', ''],
+                   ['Regel2', 'Regel6', 'Regel9', '', '', ''], 
+                   ['Regel3', 'Regel7', '', '', '', ''],
+                   ['Regel4', '', '', '', '', ''],
+                   ['', '', '' ,'' ,'' ,'']]
+        
+        cut_data = datacutter.cut_redundant_data(dataset)
+        
+        self.assertEqual(cut_data, [['Header1', 'Header2', 'Header3', 'Header4', 'Header5', '']])                                      
+                                   
+    def test_datacutter16(self): 
+        #Test 16: Check whether row limits work correctly
+        datacutter = DL.DataCutter(col_limit = 0, row_limit = 2.01)
+        dataset = [['Header1', 'Header2', 'Header3', 'Header4', 'Header5',''], 
+                   ['Regel1', 'Regel5', 'Regel8', 'Regel10', '', ''],
+                   ['Regel2', 'Regel6', 'Regel9', '', '', ''], 
+                   ['Regel3', 'Regel7', '', '', '', ''],
+                   ['Regel4', '', '', '', '', ''],
+                   ['', '', '' ,'' ,'' ,'']]
+        
+        cut_data = datacutter.cut_redundant_data(dataset)
+        
+        self.assertEqual(cut_data, [])                                     
+                                   
+                                  
+                                   
+                                  
+                              
         
 class DataFrameTestCase(unittest.TestCase):
     """
