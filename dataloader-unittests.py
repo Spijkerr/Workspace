@@ -875,30 +875,37 @@ class DataFrameTestCase(unittest.TestCase):
         assert_frame_equal(result.iloc[[1]], df.iloc[[1]])          
         
 class DataWriterSetUpTearDown(unittest.TestCase):
-    def setUp(self):
-        wb = xl.load_workbook(locator('writetest1.xlsx'))
-        for sheetname in wb.get_sheet_names():   
-            ws = wb.get_sheet_by_name(sheetname)
-            for row in range(1, 50):
-                for col in range(1, 50):
-                    ws.cell(column = col, row = row, value=1)
-        if ws is not None:
-            wb.remove_sheet(ws)
-            
-    def tearDown(self):
-        wb = xl.load_workbook(locator('writetest1.xlsx'))
-        for sheetname in wb.get_sheet_names():   
-            ws = wb.get_sheet_by_name(sheetname)
-            for row in range(1, 50):
-                for col in range(1, 50):
-                    ws.cell(column = col+1, row = row +1, value= 0)  
+    
+    """
+    Setup doesn't currently clear the worksheet. It should for proper usage
+    """
+    
+#    def setUp(self):
+#        wb = xl.load_workbook(locator('writetest1.xlsx'))
+#        for sheetname in wb.get_sheet_names():   
+#            ws = wb.get_sheet_by_name(sheetname)
+#            for row in range(1, 50):
+#                for col in range(1, 50):
+#                    ws.cell(column = col, row = row, value=1)
+#        if ws is not None:
+#            wb.remove_sheet(ws)
+#            
+#    def tearDown(self):
+#        wb = xl.load_workbook(locator('writetest1.xlsx'))
+#        for sheetname in wb.get_sheet_names():   
+#            ws = wb.get_sheet_by_name(sheetname)
+#            for row in range(1, 50):
+#                for col in range(1, 50):
+#                    ws.cell(column = col+1, row = row +1, value= 0)  
                     
 class DataWriterTestCase(DataWriterSetUpTearDown):
-
-
-        
     """
     Any problems arising here might also be due to the DataListLoader. Keep that in mind when errors occur
+    """
+    
+    """
+    Might we need an option for multitab usage? I'm not sure how much we're going to use this class anyway but it's something
+    to consider should we use it in the end.
     """
     datawriter = DL.DataWriter()
     dataloader = DL.DataListLoader()
@@ -906,7 +913,8 @@ class DataWriterTestCase(DataWriterSetUpTearDown):
     def test_datawriter1(self):
         #Test 1: Check whether the datawriter's basics work
         self.datawriter.append_list_to_excelfile(locator('writetest1.xlsx'), [['Regel1', 'Regel2', 'Regel3'],
-                                                                             ['Regel4', 'Regel5', 'Regel6']])
+                                                                             ['Regel4', 'Regel5', 'Regel6'], [None, None, None],
+                                                                             ['Regel7', 'Regel8', 'Regel9']])
         result = self.dataloader.load_excel_to_lists(locator('writetest1.xlsx'))
 
         self.assertEqual(result[1][2], 'Regel3')
@@ -927,15 +935,15 @@ class DataWriterTestCase(DataWriterSetUpTearDown):
 
         self.assertEqual(result[2][2], 'Regel6')            
         
-    def test_datawriter2(self):
-        #Test 2: Check whether the datawriter writes multi-line input correctly when empty rows are added
+    def test_datawriter4(self):
+        #Test 4: Check whether the datawriter writes multi-line input correctly when empty rows are added
         self.datawriter.append_list_to_excelfile(locator('writetest1.xlsx'), [['Regel1', 'Regel2', 'Regel3'],
                                                                              ['Regel4', 'Regel5', 'Regel6'], [None, None, None],
                                                                              ['Regel7', 'Regel8', 'Regel9']])
         result = self.dataloader.load_excel_to_lists(locator('writetest1.xlsx'))
-
-        self.assertEqual(result[4][2], 'Regel9')            
-
+        
+        self.assertEqual(result[4][2], 'Regel9')
+        
     
     
 if __name__ == '__main__':
