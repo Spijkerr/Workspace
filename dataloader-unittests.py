@@ -11,6 +11,7 @@ import DataLoader3 as DL
 import unittest
 from pandas import DataFrame
 from pandas.util.testing import assert_frame_equal
+import openpyxl as xl
 #
 #if sys.executable != 'J:\Applications\BB-Python\Python\python.exe':
 #    raise Exception ('Python is run from the wrong location')
@@ -149,7 +150,8 @@ class DataListLoaderTestCases(unittest.TestCase):
 #        """
 #        Currency from Dutch to National usage is working as intended. However when importing a number using national notation
 #        the number is handled as a string rather than an integer. input check when a comma is found to see whether the length is
-#        3 or more. If so, remove comma and pass on the edited number
+#        3 or more. If so, remove comma and pass on the edited number. In case this module might also be used for analysis on 
+#        more than economic data, the option whether to use this function should have a toggle function.
 #        """
 #        #Test 18: Check how formulas are handled
 #        result = self.dataloader.find_extension_and_load(locator('datalistloader1.xlsx'))
@@ -194,12 +196,12 @@ class DataCutterTestCases(unittest.TestCase):
         cut_data = datacutter.cut_redundant_data(dataset)
         
         self.assertEqual(cut_data,[['Header1', 'Header2', 'Header3'], ['Regel1', '', 'Regel2']])      
-             
         
+        
+    """
+    function incorrect. How to call the proper row to be protected?
+    """   
 #    def test_datacutter4(self): 
-#        """
-#        function incorrect. How to call the proper row to be protected?
-#        """
 #        #Test 4: Check whether the protected columns not cut
 #        datacutter = DL.DataCutter(protect_cols = None , protect_rows = 'test', col_limit = 0.05, row_limit = 0.50)
 #        dataset = [['Header1', '', 'Header2'], 
@@ -221,25 +223,25 @@ class DataCutterTestCases(unittest.TestCase):
     header, and another removal of empty rows after the column deletion.
     """
     
-#    def test_datacutter5(self): 
-#        #Test 5: Check whether no restrions on rows or colums returns the whole dataset
-#        datacutter = DL.DataCutter(col_limit = 0.33, row_limit = 0)
-#        dataset = [['Header1', 'Header2', 'Header3', 'Header4', 'Header5',''], 
-#                   ['Regel1', 'Regel5', 'Regel8', 'Regel10', '', ''],
-#                   ['Regel2', 'Regel6', 'Regel9', '', '', ''], 
-#                   ['Regel3', 'Regel7', '', '', '', ''],
-#                   ['Regel4', '', '', '', '', ''],
-#                   ['', '', '' ,'' ,'' ,'']]
-#        
-#        cut_data = datacutter.cut_redundant_data(dataset)
-#        
-#        self.assertEqual(cut_data, [['Header1', 'Header2', 'Header3', 'Header4', 'Header5'], 
-#                                    ['Regel1', 'Regel5', 'Regel8', 'Regel10', ''],
-#                                    ['Regel2', 'Regel6', 'Regel9', '', ''], 
-#                                    ['Regel3', 'Regel7', '', '', ''],
-#                                    ['Regel4', '', '', '', ''],
-#                                    ['', '', '', '', '']])
-#                                    
+    def test_datacutter5(self): 
+        #Test 5: Check whether no restrions on rows or colums returns the whole dataset
+        datacutter = DL.DataCutter(col_limit = 0.33, row_limit = 0)
+        dataset = [['Header1', 'Header2', 'Header3', 'Header4', 'Header5',''], 
+                   ['Regel1', 'Regel5', 'Regel8', 'Regel10', '', ''],
+                   ['Regel2', 'Regel6', 'Regel9', '', '', ''], 
+                   ['Regel3', 'Regel7', '', '', '', ''],
+                   ['Regel4', '', '', '', '', ''],
+                   ['', '', '' ,'' ,'' ,'']]
+        
+        cut_data = datacutter.cut_redundant_data(dataset)
+        
+        self.assertEqual(cut_data, [['Header1', 'Header2', 'Header3', 'Header4', 'Header5'], 
+                                    ['Regel1', 'Regel5', 'Regel8', 'Regel10', ''],
+                                    ['Regel2', 'Regel6', 'Regel9', '', ''], 
+                                    ['Regel3', 'Regel7', '', '', ''],
+                                    ['Regel4', '', '', '', ''],
+                                    ['', '', '', '', '']])
+                                    
 #    def test_datacutter6(self): 
 #        #Test 6: Check whether column limits work correctly
 #        datacutter = DL.DataCutter(col_limit = 0.34, row_limit = 0)
@@ -553,6 +555,212 @@ class DataCutterTestCases(unittest.TestCase):
 #        self.maxDiff = None
 #        self.assertEqual(cut_data, [[], [], [], []])      
 
+class DtypeDetectorTestCase(unittest.TestCase):
+    dtypedetector = DL.DtypeDetector()
+    
+#    def test_dtypedetector1(self):
+#        #Test 1: Check whether the correct dtype is assigned when using slashes as divider
+#        data = [['Header1', 'Header2', 'Header3'], 
+#                ['01/01/1000', '31/12/2999', '01/31/1990'], ['01:01:1234', '31:12:2999', '32:01:1990'],
+#                ['01.01.1234', '31.12.2999', '32.01.1990'], ['01-01-1234', '31-12-2999', '32-01-1990'],
+#                ['01,01.1234', '31,12.2999', '32,01.1990'], ['01.01,1234', '31.12,2999', '32.01,1990']]
+#        datalist = self.dtypedetector.transform_dtypes_in_list(data) 
+#        df = DataFrame(datalist, columns = ['Header1', 'Header2', 'Header3'])
+#        print (df)
+#        self.assertEqual(df['Header1'][1], '01011990')
+#        
+#    def test_dtypedetector2(self):
+#        #Test 2: Check whether the correct dtype is assigned when using slashes as divider
+#        data = [['01/01/1000', '31/12/2999', '01/31/1990'], ['01:01:1234', '31:12:2999', '32:01:1990'],
+#                ['01.01.1234', '31.12.2999', '32.01.1990'], ['01-01-1234', '31-12-2999', '32-01-1990'],
+#                ['01,01.1234', '31,12.2999', '32,01.1990'], ['01.01,1234', '31.12,2999', '32.01,1990']]
+#        df = DataFrame(data, columns = ['Header1', 'Header2', 'Header3'])
+#        df = self.dtypedetector.transform_dtypes_in_list(data) 
+#        df[0]            
+#        
+#        self.assertEqual(df, '31122999')
+#        
+#    def test_dtypedetector3(self):
+#        #Test 3: Check whether the correct dtype is assigned when using slashes as divider
+#        data = [['01/01/1000', '31/12/2999', '01/31/1990'], ['01:01:1234', '31:12:2999', '01:31:1990'],
+#                ['01.01.1234', '31.12.2999', '01.31.1990'], ['01-01-1234', '31-12-2999', '01-31-1990'],
+#                ['01,01.1234', '31,12.2999', '01,31.1990'], ['01.01,1234', '31.12,2999', '01.31,1990']]
+#        df = DataFrame(data, columns = ['Header1', 'Header2', 'Header3'])
+#        df = self.dtypedetector.transform_dtypes_in_list(data) 
+#        df[0]            
+#        
+#        self.assertEqual(df, '01/31/1990')
+#        
+#    def test_dtypedetector4(self):
+#        #Test 4: Check whether the correct dtype is assigned when using slashes as divider
+#        data = [['01/01/1000', '31/12/2999', '01/31/1990'], ['01:01:1234', '31:12:2999', '32:01:1990'],
+#                ['01.01.1234', '31.12.2999', '32.01.1990'], ['01-01-1234', '31-12-2999', '32-01-1990'],
+#                ['01,01.1234', '31,12.2999', '32,01.1990'], ['01.01,1234', '31.12,2999', '32.01,1990']]
+#        df = DataFrame(data, columns = ['Header1', 'Header2', 'Header3'])
+#        df = self.dtypedetector.transform_dtypes_in_list(data) 
+#        df[0]            
+#        
+#        self.assertEqual(df, '01011990')
+#        
+#    def test_dtypedetector5(self):
+#        #Test 5: Check whether the correct dtype is assigned when using slashes as divider
+#        data = [['01/01/1000', '31/12/2999', '01/31/1990'], ['01:01:1234', '31:12:2999', '32:01:1990'],
+#                ['01.01.1234', '31.12.2999', '32.01.1990'], ['01-01-1234', '31-12-2999', '32-01-1990'],
+#                ['01,01.1234', '31,12.2999', '32,01.1990'], ['01.01,1234', '31.12,2999', '32.01,1990']]
+#        df = DataFrame(data, columns = ['Header1', 'Header2', 'Header3'])
+#        df = self.dtypedetector.transform_dtypes_in_list(data) 
+#        df[0]            
+#        
+#        self.assertEqual(df, '31122999')
+#        
+#    def test_dtypedetector6(self):
+#        #Test 6: Check whether the correct dtype is assigned when using slashes as divider
+#        data = [['01/01/1000', '31/12/2999', '01/31/1990'], ['01:01:1234', '31:12:2999', '01:31:1990'],
+#                ['01.01.1234', '31.12.2999', '01.31.1990'], ['01-01-1234', '31-12-2999', '01-31-1990'],
+#                ['01,01.1234', '31,12.2999', '01,31.1990'], ['01.01,1234', '31.12,2999', '01.31,1990']]
+#        df = DataFrame(data, columns = ['Header1', 'Header2', 'Header3'])
+#        df = self.dtypedetector.transform_dtypes_in_list(data) 
+#        df[0]            
+#        
+#        self.assertEqual(df, '01:31:1990')
+#        
+#
+#    def test_dtypedetector7(self):
+#        #Test 7: Check whether the correct dtype is assigned when using slashes as divider
+#        data = [['01/01/1000', '31/12/2999', '01/31/1990'], ['01:01:1234', '31:12:2999', '32:01:1990'],
+#                ['01.01.1234', '31.12.2999', '32.01.1990'], ['01-01-1234', '31-12-2999', '32-01-1990'],
+#                ['01,01.1234', '31,12.2999', '32,01.1990'], ['01.01,1234', '31.12,2999', '32.01,1990']]
+#        df = DataFrame(data, columns = ['Header1', 'Header2', 'Header3'])
+#        df = self.dtypedetector.transform_dtypes_in_list(data) 
+#        df[0]            
+#        
+#        self.assertEqual(df, '01011990')
+#        
+#    def test_dtypedetector8(self):
+#        #Test 8: Check whether the correct dtype is assigned when using slashes as divider
+#        data = [['01/01/1000', '31/12/2999', '01/31/1990'], ['01:01:1234', '31:12:2999', '32:01:1990'],
+#                ['01.01.1234', '31.12.2999', '32.01.1990'], ['01-01-1234', '31-12-2999', '32-01-1990'],
+#                ['01,01.1234', '31,12.2999', '32,01.1990'], ['01.01,1234', '31.12,2999', '32.01,1990']]
+#        df = DataFrame(data, columns = ['Header1', 'Header2', 'Header3'])
+#        df = self.dtypedetector.transform_dtypes_in_list(data) 
+#        df[0]            
+#        
+#        self.assertEqual(df, '31122999')
+#        
+#    def test_dtypedetector9(self):
+#        #Test 9: Check whether the correct dtype is assigned when using slashes as divider
+#        data = [['01/01/1000', '31/12/2999', '01/31/1990'], ['01:01:1234', '31:12:2999', '01:31:1990'],
+#                ['01.01.1234', '31.12.2999', '01.31.1990'], ['01-01-1234', '31-12-2999', '01-31-1990'],
+#                ['01,01.1234', '31,12.2999', '01,31.1990'], ['01.01,1234', '31.12,2999', '01.31,1990']]
+#        df = DataFrame(data, columns = ['Header1', 'Header2', 'Header3'])
+#        df = self.dtypedetector.transform_dtypes_in_list(data) 
+#        df[0]            
+#        
+#        self.assertEqual(df, '01.31.1990')
+#        
+#
+#    def test_dtypedetector10(self):
+#        #Test 10: Check whether the correct dtype is assigned when using slashes as divider
+#        data = [['01/01/1000', '31/12/2999', '01/31/1990'], ['01:01:1234', '31:12:2999', '32:01:1990'],
+#                ['01.01.1234', '31.12.2999', '32.01.1990'], ['01-01-1234', '31-12-2999', '32-01-1990'],
+#                ['01,01.1234', '31,12.2999', '32,01.1990'], ['01.01,1234', '31.12,2999', '32.01,1990']]
+#        df = DataFrame(data, columns = ['Header1', 'Header2', 'Header3'])
+#        df = self.dtypedetector.transform_dtypes_in_list(data) 
+#        df[0]            
+#        
+#        self.assertEqual(df, '01011990')
+#        
+#    def test_dtypedetector11(self):
+#        #Test 11: Check whether the correct dtype is assigned when using slashes as divider
+#        data = [['01/01/1000', '31/12/2999', '01/31/1990'], ['01:01:1234', '31:12:2999', '32:01:1990'],
+#                ['01.01.1234', '31.12.2999', '32.01.1990'], ['01-01-1234', '31-12-2999', '32-01-1990'],
+#                ['01,01.1234', '31,12.2999', '32,01.1990'], ['01.01,1234', '31.12,2999', '32.01,1990']]
+#        df = DataFrame(data, columns = ['Header1', 'Header2', 'Header3'])
+#        df = self.dtypedetector.transform_dtypes_in_list(data) 
+#        df[0]            
+#        
+#        self.assertEqual(df, '31122999')
+#        
+#    def test_dtypedetector12(self):
+#        #Test 12: Check whether the correct dtype is assigned when using slashes as divider
+#        data = [['01/01/1000', '31/12/2999', '01/31/1990'], ['01:01:1234', '31:12:2999', '01:31:1990'],
+#                ['01.01.1234', '31.12.2999', '01.31.1990'], ['01-01-1234', '31-12-2999', '01-31-1990'],
+#                ['01,01.1234', '31,12.2999', '01,31.1990'], ['01.01,1234', '31.12,2999', '01.31,1990']]
+#        df = DataFrame(data, columns = ['Header1', 'Header2', 'Header3'])
+#        df = self.dtypedetector.transform_dtypes_in_list(data) 
+#        df[0]            
+#        
+#        self.assertEqual(df, '01-31-1990')
+#        
+#
+#    def test_dtypedetector13(self):
+#        #Test 13: Check whether the correct dtype is assigned when using slashes as divider
+#        data = [['01/01/1000', '31/12/2999', '01/31/1990'], ['01:01:1234', '31:12:2999', '32:01:1990'],
+#                ['01.01.1234', '31.12.2999', '32.01.1990'], ['01-01-1234', '31-12-2999', '32-01-1990'],
+#                ['01,01.1234', '31,12.2999', '32,01.1990'], ['01.01,1234', '31.12,2999', '32.01,1990']]
+#        df = DataFrame(data, columns = ['Header1', 'Header2', 'Header3'])
+#        df = self.dtypedetector.transform_dtypes_in_list(data) 
+#        df[0]            
+#        
+#        self.assertEqual(df, '01011990')
+#        
+#    def test_dtypedetector14(self):
+#        #Test 14: Check whether the correct dtype is assigned when using slashes as divider
+#        data = [['01/01/1000', '31/12/2999', '01/31/1990'], ['01:01:1234', '31:12:2999', '32:01:1990'],
+#                ['01.01.1234', '31.12.2999', '32.01.1990'], ['01-01-1234', '31-12-2999', '32-01-1990'],
+#                ['01,01.1234', '31,12.2999', '32,01.1990'], ['01.01,1234', '31.12,2999', '32.01,1990']]
+#        df = DataFrame(data, columns = ['Header1', 'Header2', 'Header3'])
+#        df = self.dtypedetector.transform_dtypes_in_list(data) 
+#        df[0]            
+#        
+#        self.assertEqual(df, '31122999')
+#        
+#    def test_dtypedetector15(self):
+#        #Test 15: Check whether the correct dtype is assigned when using slashes as divider
+#        data = [['01/01/1000', '31/12/2999', '01/31/1990'], ['01:01:1234', '31:12:2999', '01:31:1990'],
+#                ['01.01.1234', '31.12.2999', '01.31.1990'], ['01-01-1234', '31-12-2999', '01-31-1990'],
+#                ['01,01.1234', '31,12.2999', '01,31.1990'], ['01.01,1234', '31.12,2999', '01.31,1990']]
+#        df = DataFrame(data, columns = ['Header1', 'Header2', 'Header3'])
+#        df = self.dtypedetector.transform_dtypes_in_list(data) 
+#        df[0]            
+#        
+#        self.assertEqual(df, '01,31.1990')
+#        
+#
+#    def test_dtypedetector16(self):
+#        #Test 16: Check whether the correct dtype is assigned when using slashes as divider
+#        data = [['01/01/1000', '31/12/2999', '01/31/1990'], ['01:01:1234', '31:12:2999', '32:01:1990'],
+#                ['01.01.1234', '31.12.2999', '32.01.1990'], ['01-01-1234', '31-12-2999', '32-01-1990'],
+#                ['01,01.1234', '31,12.2999', '32,01.1990'], ['01.01,1234', '31.12,2999', '32.01,1990']]
+#        df = DataFrame(data, columns = ['Header1', 'Header2', 'Header3'])
+#        df = self.dtypedetector.transform_dtypes_in_list(data) 
+#        df[0]            
+#        
+#        self.assertEqual(df, '01011990')
+#        
+#    def test_dtypedetector17(self):
+#        #Test 17: Check whether the correct dtype is assigned when using slashes as divider
+#        data = [['01/01/1000', '31/12/2999', '01/31/1990'], ['01:01:1234', '31:12:2999', '32:01:1990'],
+#                ['01.01.1234', '31.12.2999', '32.01.1990'], ['01-01-1234', '31-12-2999', '32-01-1990'],
+#                ['01,01.1234', '31,12.2999', '32,01.1990'], ['01.01,1234', '31.12,2999', '32.01,1990']]
+#        df = DataFrame(data, columns = ['Header1', 'Header2', 'Header3'])
+#        df = self.dtypedetector.transform_dtypes_in_list(data) 
+#        df[0]            
+#        
+#        self.assertEqual(df, '31122999')
+#        
+#    def test_dtypedetector18(self):
+#        #Test 18: Check whether the correct dtype is assigned when using slashes as divider
+#        data = [['01/01/1000', '31/12/2999', '01/31/1990'], ['01:01:1234', '31:12:2999', '01:31:1990'],
+#                ['01.01.1234', '31.12.2999', '01.31.1990'], ['01-01-1234', '31-12-2999', '01-31-1990'],
+#                ['01,01.1234', '31,12.2999', '01,31.1990'], ['01.01,1234', '31.12,2999', '01.31,1990']]
+#        df = DataFrame(data, columns = ['Header1', 'Header2', 'Header3'])
+#        df = self.dtypedetector.transform_dtypes_in_list(data) 
+#        df[0]            
+#        
+#        self.assertEqual(df, '01.31,1990')
+#        
+
                                     
 class DataFrameTestCase(unittest.TestCase):
     """
@@ -647,7 +855,7 @@ class DataFrameTestCase(unittest.TestCase):
         self.assertEqual(result, 'Regel2')  
         
     def test_dataframeloader9(self):
-        #Test 5: Check whether changing the index changes the usage of slicing 
+        #Test 9: Check whether changing the index changes the usage of slicing 
         result = self.dataframeloader.load_data(data_location = locator('datalistloader1.xlsx'), col_is_index = 'Header1')
         Header1 = ['Regel1', '"3454235' ]        
         t = [['Regel2', 'Regel3'], ['&85674#', "'sadaf'"]]
@@ -656,21 +864,82 @@ class DataFrameTestCase(unittest.TestCase):
             
         assert_frame_equal(result.iloc[[1]], df.iloc[[1]])          
         
-      
-    def test_dataframeloader9(self):
-        #Test 5: Check whether changing the index changes the usage of slicing 
+    def test_dataframeloader10(self):
+        #Test 10: Check whether changing the index changes the usage of slicing 
         result = self.dataframeloader.load_data(data_location = locator('datalistloader1.xlsx'), col_is_index = 'Header1')
         Header1 = ['Regel1', '"3454235' ]        
         t = [['Regel2', 'Regel3'], ['&85674#', "'sadaf'"]]
         df = DataFrame(t, columns = ['Header2', 'Header3'], index = Header1)    
         df.index.rename('Header1', inplace = True)
             
-        assert_frame_equal(result.iloc[[1]], df.iloc[[1]])     
+        assert_frame_equal(result.iloc[[1]], df.iloc[[1]])          
+        
+class DataWriterSetUpTearDown(unittest.TestCase):
+    def setUp(self):
+        wb = xl.load_workbook(locator('writetest1.xlsx'))
+        for sheetname in wb.get_sheet_names():   
+            ws = wb.get_sheet_by_name(sheetname)
+            for row in range(1, 50):
+                for col in range(1, 50):
+                    ws.cell(column = col, row = row, value=1)
+        if ws is not None:
+            wb.remove_sheet(ws)
+            
+    def tearDown(self):
+        wb = xl.load_workbook(locator('writetest1.xlsx'))
+        for sheetname in wb.get_sheet_names():   
+            ws = wb.get_sheet_by_name(sheetname)
+            for row in range(1, 50):
+                for col in range(1, 50):
+                    ws.cell(column = col+1, row = row +1, value= 0)  
+                    
+class DataWriterTestCase(DataWriterSetUpTearDown):
+
+
+        
+    """
+    Any problems arising here might also be due to the DataListLoader. Keep that in mind when errors occur
+    """
+    datawriter = DL.DataWriter()
+    dataloader = DL.DataListLoader()
+    
+    def test_datawriter1(self):
+        #Test 1: Check whether the datawriter's basics work
+        self.datawriter.append_list_to_excelfile(locator('writetest1.xlsx'), [['Regel1', 'Regel2', 'Regel3'],
+                                                                             ['Regel4', 'Regel5', 'Regel6']])
+        result = self.dataloader.load_excel_to_lists(locator('writetest1.xlsx'))
+
+        self.assertEqual(result[1][2], 'Regel3')
+        
+    def test_datawriter2(self):
+        #Test 2: Check whether the datawriter writes multi-line input correctly
+        self.datawriter.append_list_to_excelfile(locator('writetest1.xlsx'), [['Regel1', 'Regel2', 'Regel3'],
+                                                                             ['Regel4', 'Regel5', 'Regel6']])
+        result = self.dataloader.load_excel_to_lists(locator('writetest1.xlsx'))
+
+        self.assertEqual(result[2][0], 'Regel4')    
+        
+    def test_datawriter3(self):
+        #Test 3: Check whether the datawriter writes multi-line input correctly across the entire row
+        self.datawriter.append_list_to_excelfile(locator('writetest1.xlsx'), [['Regel1', 'Regel2', 'Regel3'],
+                                                                             ['Regel4', 'Regel5', 'Regel6']])
+        result = self.dataloader.load_excel_to_lists(locator('writetest1.xlsx'))
+
+        self.assertEqual(result[2][2], 'Regel6')            
+        
+    def test_datawriter2(self):
+        #Test 2: Check whether the datawriter writes multi-line input correctly when empty rows are added
+        self.datawriter.append_list_to_excelfile(locator('writetest1.xlsx'), [['Regel1', 'Regel2', 'Regel3'],
+                                                                             ['Regel4', 'Regel5', 'Regel6'], [None, None, None],
+                                                                             ['Regel7', 'Regel8', 'Regel9']])
+        result = self.dataloader.load_excel_to_lists(locator('writetest1.xlsx'))
+
+        self.assertEqual(result[4][2], 'Regel9')            
 
     
     
 if __name__ == '__main__':
-    test_classes_to_run = [DataListLoaderTestCases, DataCutterTestCases, DataFrameTestCase]
+    test_classes_to_run = [DataListLoaderTestCases, DataCutterTestCases, DataFrameTestCase, DtypeDetectorTestCase, DataWriterTestCase]
 
     loader = unittest.TestLoader()
 
@@ -684,11 +953,6 @@ if __name__ == '__main__':
     runner = unittest.TextTestRunner()
     results = runner.run(big_suite)
 
-
-#        t = [['Regel1', 'Regel2', 'Regel3'],['"3454235', '&85674#', 'sadaf']]
-#        df = DataFrame(t, columns = ['Header1', 'Header2', 'Header3'])
-#        print(df)
-#        print(result)
 
 
 

@@ -106,15 +106,24 @@ class DtypeDetector():
     def detect_dtypes(self, data):
         header = data[0]
         
-        dtype_to_regex = {'ddmmyyyy_backslash': r"([0-2]?[0-9]|3[0-1])//(0[0-9]|1[0-2])//[1-2][0-9][0-9][0-9]",
+        dtype_to_regex = {'ddmmyyyy_slash': r"([0-2]?[0-9]|3[0-1])//(0[0-9]|1[0-2])//[1-2][0-9][0-9][0-9]",
         'ddmmyyyy_colon': r"([0-2]?[0-9]|3[0-1]):(0[0-9]|1[0-2]):[1-2][0-9][0-9][0-9]",
         'ddmmyyyy_dot': r"([0-2]?[0-9]|3[0-1])\.(0[0-9]|1[0-2])\.[1-2][0-9][0-9][0-9]",
         'ddmmyyyy_dash': r"([0-2]?[0-9]|3[0-1])-(0[0-9]|1[0-2])-[1-2][0-9][0-9][0-9]",
         'float_dotdecimal': r"^-?(([0-9]?[0-9]?(,?[0-9][0-9][0-9])*\.[0-9]?[0-9]?)|([0-9]?[0-9]?))$",
         'float_commadecimal': r"^-?(([0-9]?[0-9]?(.?[0-9][0-9][0-9])*,[0-9]?[0-9]?)|([0-9]?[0-9]?))$"}
+
+        """
+        Would the regex r"[0-3][0-9]/[0-1][0-9]/[1-2][0-9][0-9][0-9]" 
+        not produce the same results when it comes to ddmmyyyy_backslash?
+        """
         
         #Take a sample of integers. These are the indexes we will use for validating the dtype
         #We will use n integers, with a maximum of 1000.
+        """
+        Isn't the maximum 100 right now?
+        """
+
         sample = [random.randint(1,len(data)-1) for n in range(0, min(len(data),100))]
         
         header_to_dtype_map = {}
@@ -153,7 +162,7 @@ class DtypeDetector():
         elif dtype == 'ddmmyyyy_dot':
             return datetime.strptime(data, '%d.%m.%Y')
         
-        elif dtype == 'ddmmyyyy_backslash':
+        elif dtype == 'ddmmyyyy_slash':
             return datetime.strptime(data, '%d/%m/%Y')
         
         elif dtype == 'ddmmyyyy_dash':
@@ -172,7 +181,9 @@ class DtypeDetector():
             return float(data.strip())
         else:
             return data
-
+    """
+    Should these not be the other way around? ',' to '.' first, then '.' to ''. 
+    """
             
     def float_dotdecimal(self, data):
         #Return a flaot or None if a None-value is passed
@@ -332,15 +343,11 @@ class DataWriter():
     def append_list_to_excelfile(self, location, datalist):
         wb = xl.load_workbook(location)
         ws = wb.active
-        
-        new_row = len(ws.rows) + 1
         for row in datalist:
-            new_col = 1 
-            for col in row:
-                cell = ws.cell(row=new_row, column = new_col)
-                cell.value = col
-                
-        wb.save()
+            new_row = ws.max_row
+            for col in range(len(row)):
+                ws.cell(column = col+1, row = new_row + 1, value=row[col])            
+        wb.save(location)
 
     def append_list_to_txtfile(self, location, datalist):
         file = open(location, 'a')
