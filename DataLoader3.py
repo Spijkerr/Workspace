@@ -116,13 +116,12 @@ class DtypeDetector():
         """
         Would the regex r"[0-3][0-9]/[0-1][0-9]/[1-2][0-9][0-9][0-9]" 
         not produce the same results when it comes to ddmmyyyy_backslash?
+		No, the ? after [0-2] is to make it optional if the zero drops. 
         """
         
         #Take a sample of integers. These are the indexes we will use for validating the dtype
-        #We will use n integers, with a maximum of 1000.
-        """
-        Isn't the maximum 100 right now?
-        """
+        #We will use n integers, with a maximum of 100.
+
 
         sample = [random.randint(1,len(data)-1) for n in range(0, min(len(data),100))]
         
